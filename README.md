@@ -1,3 +1,3 @@
 # tetris_game
 
-A new Flutter project.
+A basic tetris game for android.
