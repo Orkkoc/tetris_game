@@ -1,11 +1,9 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 // Define the types of Tetriminos.
 enum TetriminoType { I, O, T, S, Z, J, L }
 
-// This will store the shape, color, and position for each Tetrimino type.
 class Tetrimino {
   final TetriminoType type;
   List<List<int>> shape;
@@ -20,43 +18,102 @@ class Tetrimino {
   }) : position = position ??
             Offset.zero; // Default to (0, 0) if no position is provided.
 
-  // Factory methods to create different types of Tetriminos.
-  factory Tetrimino.I({Offset? position}) {
-    return Tetrimino(
-      type: TetriminoType.I,
-      shape: [
-        [0, 0, 0, 0],
-        [1, 1, 1, 1],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-      ],
-      color: Colors.cyan,
-      position: position,
-    );
-  }
+  // Factory methods for each Tetrimino type
+  factory Tetrimino.I({Offset? position}) => Tetrimino(
+        type: TetriminoType.I,
+        shape: [
+          [1, 1, 1, 1],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+        ],
+        color: Colors.cyan,
+        position: position,
+      );
 
-  // Add factory constructors for other Tetriminos here...
+  factory Tetrimino.O({Offset? position}) => Tetrimino(
+        type: TetriminoType.O,
+        shape: [
+          [1, 1],
+          [1, 1],
+        ],
+        color: Colors.yellow,
+        position: position,
+      );
+
+  factory Tetrimino.T({Offset? position}) => Tetrimino(
+        type: TetriminoType.T,
+        shape: [
+          [0, 1, 0],
+          [1, 1, 1],
+          [0, 0, 0],
+        ],
+        color: Colors.purple,
+        position: position,
+      );
+
+  factory Tetrimino.S({Offset? position}) => Tetrimino(
+        type: TetriminoType.S,
+        shape: [
+          [0, 1, 1],
+          [1, 1, 0],
+          [0, 0, 0],
+        ],
+        color: Colors.green,
+        position: position,
+      );
+
+  factory Tetrimino.Z({Offset? position}) => Tetrimino(
+        type: TetriminoType.Z,
+        shape: [
+          [1, 1, 0],
+          [0, 1, 1],
+          [0, 0, 0],
+        ],
+        color: Colors.red,
+        position: position,
+      );
+
+  factory Tetrimino.J({Offset? position}) => Tetrimino(
+        type: TetriminoType.J,
+        shape: [
+          [1, 0, 0],
+          [1, 1, 1],
+          [0, 0, 0],
+        ],
+        color: Colors.blue,
+        position: position,
+      );
+
+  factory Tetrimino.L({Offset? position}) => Tetrimino(
+        type: TetriminoType.L,
+        shape: [
+          [0, 0, 1],
+          [1, 1, 1],
+          [0, 0, 0],
+        ],
+        color: Colors.orange,
+        position: position,
+      );
 
   // Rotate the Tetrimino.
   Tetrimino rotate() {
-    // Use the map function to create a new rotated matrix.
     var newShape = List.generate(
-      shape.length,
+      shape[0].length,
       (i) => List.generate(shape.length, (j) => shape[j][i]),
       growable: false,
     );
 
-    // Reverse each row to get the correct rotation.
-    // The reversed collection is not a list, so we need to create a new list from it.
+    // Convert the reversed iterable to a list
     for (int i = 0; i < newShape.length; i++) {
       newShape[i] = newShape[i].reversed.toList();
     }
 
     return Tetrimino(
-        type: type,
+        type: this.type,
         shape: newShape,
-        color: color,
-        position: position);
+        color: this.color,
+        position: this.position);
   }
 
   // Move the Tetrimino on the grid.
@@ -90,7 +147,6 @@ class Tetrimino {
 
   // Method to rotate the Tetrimino back to its previous state
   Tetrimino rotateBack() {
-    // Calling rotate 3 times returns to the previous state
     return rotate().rotate().rotate();
   }
 
@@ -103,10 +159,21 @@ class Tetrimino {
     switch (type) {
       case TetriminoType.I:
         return Tetrimino.I(position: position);
-      // Add cases for other Tetrimino types...
+      case TetriminoType.O:
+        return Tetrimino.O(position: position);
+      case TetriminoType.T:
+        return Tetrimino.T(position: position);
+      case TetriminoType.S:
+        return Tetrimino.S(position: position);
+      case TetriminoType.Z:
+        return Tetrimino.Z(position: position);
+      case TetriminoType.J:
+        return Tetrimino.J(position: position);
+      case TetriminoType.L:
+        return Tetrimino.L(position: position);
       default:
         return Tetrimino.I(
-            position: position); // Default to I if not implemented yet
+            position: position); // Default case, can be changed if needed
     }
   }
 }

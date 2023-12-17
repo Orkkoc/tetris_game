@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter/scheduler.dart';
+import 'package:tetris_game/models/tetrimino.dart';
 
 class GameScreen extends StatefulWidget {
   final int initialScore;
@@ -32,6 +32,24 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   // Represent the game board as a 2D list (this will be initialized in initState)
   late List<List<int>> board;
 
+  late Tetrimino currentTetrimino;
+
+  bool _isCellPartOfTetrimino(int x, int y) {
+    // Check if the coordinates fall within the Tetrimino's shape.
+    // Transform grid coordinates to Tetrimino's local coordinates.
+    int localX = x - currentTetrimino.position.dx.toInt();
+    int localY = y - currentTetrimino.position.dy.toInt();
+
+    // Check if the coordinates are within the bounds of the Tetrimino's shape
+    if (localX >= 0 &&
+        localX < currentTetrimino.shape[0].length &&
+        localY >= 0 &&
+        localY < currentTetrimino.shape.length) {
+      return currentTetrimino.shape[localY][localX] == 1;
+    }
+    return false; // The cell is not part of the Tetrimino
+  }
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +62,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     // Initialize the ticker
     _gameTicker = createTicker(_onTick)..start();
+    // Initialize Tetrimino
+    currentTetrimino = Tetrimino.random();
   }
 
   @override
@@ -53,14 +73,29 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _onTick(Duration elapsed) {
-    // This function will be called 60 times per second.
     if (!isGamePaused) {
       setState(() {
-        // Here, you would add your game update logic
-        // For now, let's just increase the score as an example
-        score += 10;
+        // Simulate Tetrimino falling
+        var newPosition = Offset(
+            currentTetrimino.position.dx, currentTetrimino.position.dy + 1);
+        if (_canMoveToPosition(newPosition)) {
+          currentTetrimino.setPosition(newPosition);
+        } else {
+          // If Tetrimino can't move down, place it on the board
+          _placeTetriminoOnBoard();
+          _generateNewTetrimino(); // Generate a new Tetrimino
+        }
       });
     }
+  }
+
+  void _generateNewTetrimino() {
+    setState(() {
+      // Generate a new Tetrimino and set its starting position.
+      // The starting position is typically at the top of the board, in the middle.
+      currentTetrimino = Tetrimino.random(
+          position: Offset((boardWidth / 2).floor() as double, 0));
+    });
   }
 
   void _togglePause() {
@@ -71,6 +106,41 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       _gameTicker.stop();
     } else {
       _gameTicker.start();
+    }
+  }
+
+  bool _canMoveToPosition(Offset newPosition) {
+    for (int y = 0; y < currentTetrimino.shape.length; y++) {
+      for (int x = 0; x < currentTetrimino.shape[y].length; x++) {
+        if (currentTetrimino.shape[y][x] == 1) {
+          int boardX = x + newPosition.dx.toInt();
+          int boardY = y + newPosition.dy.toInt();
+
+          if (boardX < 0 ||
+              boardX >= boardWidth ||
+              boardY < 0 ||
+              boardY >= boardHeight ||
+              board[boardY][boardX] == 1) {
+            return false; // Collision detected
+          }
+        }
+      }
+    }
+    return true; // No collision
+  }
+
+  void _placeTetriminoOnBoard() {
+    for (int y = 0; y < currentTetrimino.shape.length; y++) {
+      for (int x = 0; x < currentTetrimino.shape[y].length; x++) {
+        if (currentTetrimino.shape[y][x] == 1) {
+          int boardX = x + currentTetrimino.position.dx.toInt();
+          int boardY = y + currentTetrimino.position.dy.toInt();
+
+          if (boardY < boardHeight && boardX < boardWidth) {
+            board[boardY][boardX] = 1; // Place Tetrimino block on the board
+          }
+        }
+      }
     }
   }
 
@@ -121,8 +191,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 itemBuilder: (BuildContext context, int index) {
                   int x = index % boardWidth;
                   int y = index ~/ boardWidth;
+
+                  bool isPartOfTetrimino = _isCellPartOfTetrimino(x, y);
                   Color cellColor =
-                      board[y][x] == 0 ? Colors.black : Colors.green;
+                      isPartOfTetrimino ? currentTetrimino.color : Colors.black;
+
                   return Container(
                     margin: const EdgeInsets.all(0.5),
                     decoration: BoxDecoration(
