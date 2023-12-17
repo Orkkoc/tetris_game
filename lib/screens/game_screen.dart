@@ -26,8 +26,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool isGamePaused = false;
 
   // Define the width and height of the game board
-  final int boardWidth = 10;
-  final int boardHeight = 20;
+  final int boardWidth = 8;
+  final int boardHeight = 10;
 
   // Represent the game board as a 2D list (this will be initialized in initState)
   late List<List<int>> board;
@@ -140,7 +140,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               child: ElevatedButton(
                 onPressed: _togglePause,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: isGamePaused ? Colors.green : Colors.red,
+                  foregroundColor: Colors.white,
+                  backgroundColor: isGamePaused ? Colors.green : Colors.red,
                 ),
                 child: Text(isGamePaused ? 'Resume' : 'Pause'),
               ),
