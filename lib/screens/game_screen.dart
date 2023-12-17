@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:tetris_game/models/tetrimino.dart';
+import 'package:tetris_game/widgets/tetrimino_preview.dart';
 
 class GameScreen extends StatefulWidget {
   final int initialScore;
@@ -33,6 +34,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late List<List<int>> board;
 
   late Tetrimino currentTetrimino;
+  late Tetrimino nextTetrimino;
 
   bool _isCellPartOfTetrimino(int x, int y) {
     // Check if the coordinates fall within the Tetrimino's shape.
@@ -64,6 +66,26 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     _gameTicker = createTicker(_onTick)..start();
     // Initialize Tetrimino
     currentTetrimino = Tetrimino.random();
+    nextTetrimino = Tetrimino.random(); // Initialize the next Tetrimino
+    _generateNewTetrimino();
+  }
+
+  void _generateNewTetrimino() {
+    setState(() {
+      if (nextTetrimino == null) {
+        // This condition will be true when the game starts
+        // Generate the first Tetrimino for the game start
+        currentTetrimino =
+            Tetrimino.random(position: Offset((boardWidth / 2).floor() - 2, 0));
+        nextTetrimino = Tetrimino.random();
+      } else {
+        // Set current Tetrimino to the next one and generate a new next Tetrimino
+        currentTetrimino = nextTetrimino;
+        nextTetrimino = Tetrimino.random();
+        // Adjust the position of the current Tetrimino to the top center of the board
+        currentTetrimino.setPosition(Offset((boardWidth / 2).floor() - 2, 0));
+      }
+    });
   }
 
   @override
@@ -87,15 +109,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         }
       });
     }
-  }
-
-  void _generateNewTetrimino() {
-    setState(() {
-      // Generate a new Tetrimino and set its starting position.
-      // The starting position is typically at the top of the board, in the middle.
-      currentTetrimino = Tetrimino.random(
-          position: Offset((boardWidth / 2).floor() as double, 0));
-    });
   }
 
   void _togglePause() {
@@ -164,20 +177,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             // Next Tetrimino preview window
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                ),
-                // Placeholder for the next Tetrimino
-                child: const Center(
-                  child: Text(
-                    'Next',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
+              child: TetriminoPreview(tetrimino: nextTetrimino),
             ),
 
             // Gameplay Area in the center
