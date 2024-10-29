@@ -110,10 +110,10 @@ class Tetrimino {
     }
 
     return Tetrimino(
-        type: this.type,
+        type: type,
         shape: newShape,
-        color: this.color,
-        position: this.position);
+        color: color,
+        position: position);
   }
 
   // Move the Tetrimino on the grid.

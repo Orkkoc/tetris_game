@@ -14,7 +14,7 @@ class TetriminoPreview extends StatelessWidget {
     return Container(
       width: 100,
       height: 100,
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.white),
         color: Colors.black, // Background color of the preview area
@@ -30,7 +30,7 @@ class TetriminoPreview extends StatelessWidget {
 
           bool isFilled = tetrimino.shape[y][x] == 1;
           return Container(
-            margin: EdgeInsets.all(2),
+            margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: isFilled ? tetrimino.color : Colors.transparent,
               border: isFilled ? Border.all(color: tetrimino.color) : null,

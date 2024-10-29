@@ -32,8 +32,7 @@ class GameController {
     // Randomly pick a new Tetrimino
     currentTetrimino = Tetrimino.random();
     // Set the initial position (usually the top middle of the grid)
-    currentTetrimino
-        .setPosition(Offset((width ~/ 2.toDouble()) as double, 0.toDouble()));
+    currentTetrimino.setPosition(Offset((width ~/ 2).toDouble(), 0.toDouble()));
     // If the new Tetrimino collides immediately, the game is over
     if (_checkCollision(currentTetrimino)) {
       isGameOver = true;
@@ -60,9 +59,9 @@ class GameController {
 
   void rotate() {
     // Rotate the Tetrimino if there's no collision
-    currentTetrimino.rotate();
+    currentTetrimino = currentTetrimino.rotate();
     if (_checkCollision(currentTetrimino)) {
-      currentTetrimino.rotateBack();
+      currentTetrimino = currentTetrimino.rotateBack();
     }
   }
 
@@ -78,22 +77,54 @@ class GameController {
 
   void _mergeTetriminoWithGrid() {
     // Merge the Tetrimino with the grid and check for line clears
-    // ... (implementation needed)
+    for (int y = 0; y < currentTetrimino.shape.length; y++) {
+      for (int x = 0; x < currentTetrimino.shape[y].length; x++) {
+        if (currentTetrimino.shape[y][x] == 1) {
+          int gridX = x + currentTetrimino.position.dx.toInt();
+          int gridY = y + currentTetrimino.position.dy.toInt();
+          if (gridY >= 0 && gridY < height && gridX >= 0 && gridX < width) {
+            grid[gridY][gridX] = 1; // Mark the grid cell as filled
+          }
+        }
+      }
+    }
+    _clearFullLines();
+  }
+
+  void _clearFullLines() {
+    // Check for and clear full lines
+    grid.removeWhere((row) => row.every((cell) => cell == 1));
+    while (grid.length < height) {
+      grid.insert(0, List.generate(width, (_) => 0));
+    }
   }
 
   bool _checkCollision(Tetrimino tetrimino) {
-    // Check for collision with walls and other Tetriminos
-    // ... (implementation needed)
+    for (int y = 0; y < tetrimino.shape.length; y++) {
+      for (int x = 0; x < tetrimino.shape[y].length; x++) {
+        if (tetrimino.shape[y][x] == 1) {
+          int gridX = x + tetrimino.position.dx.toInt();
+          int gridY = y + tetrimino.position.dy.toInt();
+          if (gridX < 0 ||
+              gridX >= width ||
+              gridY >= height ||
+              (gridY >= 0 && grid[gridY][gridX] == 1)) {
+            return true;
+          }
+        }
+      }
+    }
     return false;
   }
 
   void _startGameTick() {
     // Start or restart the game tick timer
     _gameTickTimer?.cancel();
-    _gameTickTimer = Timer.periodic(const Duration(milliseconds: 800), (Timer timer) {
-      drop();
-      // Check for line clears and increase score
-      // ... (implementation needed)
+    _gameTickTimer =
+        Timer.periodic(const Duration(milliseconds: 1000), (Timer timer) {
+      if (!isGameOver) {
+        drop();
+      }
     });
   }
 }
